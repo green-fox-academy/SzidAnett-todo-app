@@ -1,1 +1,3 @@
-Feed the monkey
+[ ] Walk the dog
+[ ] Buy milk
+[ ] Do homework

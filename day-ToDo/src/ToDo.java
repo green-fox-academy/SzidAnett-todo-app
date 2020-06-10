@@ -1,27 +1,94 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Scanner;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ToDo {
-    public static void main(String[]args) {
-        File tasks = new File("tasks.txt");
+    public static void main(String[] args) {
+        List<String> lists = new ArrayList<>();
+        Path task = Paths.get("tasks.txt");
 
         if (args.length == 0) {
             printUsage();
+
+        } else if(!(args[0].equals("-l") || args[0].equals("-a") || args[0].equals("-r") || args[0].equals("-c"))) {
+            System.out.println("Unsupported argument");
+            printUsage();
+
         } else if (args[0].equals("-l")) {
-            if (tasks.length() == 0) {
+            try {
+                lists = Files.readAllLines(task);
+
+            }catch (IOException e) {
+                System.out.println("No file");
+                System.exit(2);
+            }
+            System.out.println();
+            if (lists.size() == 0){
                 System.out.println("No todos for today! :)");
             } else {
-                taskList(tasks);
+                for (int i = 0; i < lists.size(); i++) {
+                    System.out.println((i+1)+" - "+ lists.get(i));
+                }
+            }
+        } else if(args[0].equals("-a")) {
+            if (args.length < 2) {
+                System.out.println("Unable to add: no task provided");
+                System.exit(2);
+            } else {
+                try {
+                    lists = Files.readAllLines(task);
+                    lists.add("[ ] "+args[1]);
+                    Files.write(task, lists);
+                } catch (IOException e) {
+                    System.out.println("Can't add");
+                    System.exit(2);
+                }
+            }
+        } else if(args[0].equals("-r")) {
+            try {
+                lists = Files.readAllLines(task);
+                int removeTasks = Integer.parseInt(args[1]) - 1;
+                lists.remove(removeTasks);
+                Files.write(task, lists);
+            } catch (IOException e) {
+                System.out.println("Can't remove");
+                System.exit(2);
+            } catch (IndexOutOfBoundsException e) {
+                if (args.length < 2) {
+                    System.out.println("Unable to remove: index is not provided");
+                    System.exit(2);
+                } else {
+                    System.out.println("Unable to remove: index is out of bound");
+                    System.exit(2);
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Unable to remove: index is not a number");
+            }
+        } else if (args[0].equals("-c")) {
+            try {
+                lists = Files.readAllLines(task);
+                int checkTasks = Integer.parseInt(args[1]) - 1;
+                lists.set(checkTasks, "[x"+ lists.get(checkTasks).substring(2));
+                Files.write(task, lists);
+            } catch (IOException e) {
+                System.out.println("Can't write");
+                System.exit(2);
+            } catch (IndexOutOfBoundsException e) {
+                if (args.length < 2) {
+                    System.out.println("Unable to check: index is not provided");
+                    System.exit(2);
+                } else {
+                    System.out.println("Unable to check: index is out of bound");
+                    System.exit(2);
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Unable to check: index is not a number");
             }
         }
-        if (args[0].equals("-a") && !args[1].isEmpty()){
-            addTask(tasks, args[1]);
-        }
     }
-
     public static void printUsage() {
         System.out.println("Command Line Todo application");
         System.out.println("=============================");
@@ -32,31 +99,5 @@ public class ToDo {
         System.out.println("  -r   Removes an task");
         System.out.println("  -c   Completes an task");
     }
-    public static void taskList(File file) {
-        try {
-            Scanner myReader = new Scanner(file);
-            int counter = 0;
-            while (myReader.hasNextLine()) {
-                counter++;
-                String data = myReader.nextLine();
-                System.out.println(Integer.toString(counter) + " - " + data);
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("There's no task list");
-            System.exit(2);
-        }
-
-    }
-    public static void addTask(File file, String task) {
-        try {
-            FileWriter myWriter = new FileWriter(file, true);
-            myWriter.write(task + "\n");
-            myWriter.close();
-        } catch (IOException e) {
-            System.out.println("An error occurred.");
-            System.exit(2);
-        }
-    }
-
 }
 
