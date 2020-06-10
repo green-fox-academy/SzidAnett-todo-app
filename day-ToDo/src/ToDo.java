@@ -1,5 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class ToDo {
@@ -14,6 +16,9 @@ public class ToDo {
             } else {
                 taskList(tasks);
             }
+        }
+        if (args[0].equals("-a") && !args[1].isEmpty()){
+            addTask(tasks, args[1]);
         }
     }
 
@@ -42,5 +47,16 @@ public class ToDo {
         }
 
     }
+    public static void addTask(File file, String task) {
+        try {
+            FileWriter myWriter = new FileWriter(file, true);
+            myWriter.write(task + "\n");
+            myWriter.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            System.exit(2);
+        }
+    }
+
 }
 
